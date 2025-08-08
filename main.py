@@ -7,7 +7,7 @@ import os
 import pptx 
 from llama_parse import LlamaParse
 
-LLAMA_API_KEY = "llx-QxOOQzstU9I7CYUBpEuzw8jDrJCh3FSDIcEZZjWSwhWWEAL5"  
+LLAMA_API_KEY = ""  
 
 def extract_text_llamaparse(file_path):
     parser = LlamaParse(api_key=LLAMA_API_KEY)
@@ -123,7 +123,7 @@ import google.generativeai as genai
 import json
 
 
-GOOGLE_API_KEY = "AIzaSyBGZpCRyC548KpqkHf5qYlICO0EfSz7EcY"
+GOOGLE_API_KEY = ""
 
 
 try:
@@ -342,5 +342,6 @@ with open("outputs/generated_definitions.json", "w", encoding="utf-8") as f:
 
 with open("outputs/differing_definitions.json", "w", encoding="utf-8") as f:
     json.dump(terms_with_differences, f, ensure_ascii=False, indent=2)
+
 
 
