@@ -83,36 +83,8 @@ except (FileNotFoundError, json.JSONDecodeError) as e:
     print(f" Error loading data from {output_json_path}: {e}")
     data = [] 
 
-# Iterate and clean document content
-#cleaned_data = []
-#for document in data:
-    #content = document.get("content", "") # Get content, default to empty string
 
-    # Apply cleaning steps
-    # Remove leading/trailing whitespace from each line
-    #cleaned_content_lines = [line.strip() for line in content.splitlines()]
-    # Join lines, removing extra blank lines but preserving paragraph breaks (heuristic)
-    # Keep single blank lines, remove multiple blank lines
-    #cleaned_content = "\n".join(filter(lambda x: x or (x == "" and cleaned_content_lines[cleaned_content_lines.index(x)+1] != ""), cleaned_content_lines))
 
-    # Replace multiple spaces with a single space
-    #cleaned_content = re.sub(r'\s+', ' ', cleaned_content).strip()
-
-    # Update the document with the cleaned content
-   # document["content"] = cleaned_content
-   # cleaned_data.append(document)
-
-#print(" Cleaning of document content complete.")
-#cleaned_output_json_path = "cleaned_data.json"
-
-#فry:
-    #with open(cleaned_output_json_path, "w", encoding="utf-8") as f:
-       # json.dump(cleaned_data, f, ensure_ascii=False, indent=2)
-    #print(f" Successfully saved cleaned data to {cleaned_output_json_path}")
-#except Exception as e:
-    #print(f" Error saving cleaned data to {cleaned_output_json_path}: {e}")
-                
-#output_json_path = "output.json"
 
 with open(output_json_path, "r", encoding="utf-8") as f:
     data = json.load(f)
@@ -342,6 +314,7 @@ with open("outputs/generated_definitions.json", "w", encoding="utf-8") as f:
 
 with open("outputs/differing_definitions.json", "w", encoding="utf-8") as f:
     json.dump(terms_with_differences, f, ensure_ascii=False, indent=2)
+
 
 
 
