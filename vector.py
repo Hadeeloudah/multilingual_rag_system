@@ -21,7 +21,7 @@ def extract_text_from_file(file_path):
         elif ext.endswith(".pdf"):
             from llama_parse import LlamaParse
            
-            parser = LlamaParse(api_key="llx-QkFtY6SSeerWTHIe4p7Hx7cWujt21OByTKp7CsvvHb1xTO1O")
+            parser = LlamaParse(api_key="")
             parsed_docs = parser.load_data(file_path)
             return "\n".join([doc.text for doc in parsed_docs])
 
@@ -137,5 +137,6 @@ if __name__ == "__main__":
     
     store_glossary("outputs/generated_definitions.json", "terms_and_definitions")
     store_conflicting_terms("outputs/differing_definitions.json", "conflicting_terms")
+
 
     store_raw_file_chunks("data", "raw_file_chunks")
