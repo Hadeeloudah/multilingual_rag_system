@@ -19,23 +19,21 @@ from llama_parse import LlamaParse
 import chardet
 import torch # Import torch
 
-# Set page config
+
 st.set_page_config(page_title="Document Analysis and Chat", layout="wide")
 
-# Add a title and introductory text
+
 st.title("Multilingual RAG-based Document Understanding System")
 st.markdown("""
     Upload a document (PDF, DOCX, TXT, PPTX) to extract key terms and definitions,
     and then chat with a RAG model to ask questions about the document's content.
 """)
 
-# --- API Key Configuration ---
-# WARNING: Hardcoding API keys directly in the notebook is not recommended for security reasons.
-# For deployment, use Streamlit's secrets management.
-LLAMA_API_KEY = "llx-QxOOQzstU9I7CYUBpEuzw8jDrJCh3FSDIcEZZjWSwhWWEAL5" # Replace with your actual LlamaParse API key
-GOOGLE_API_KEY = "AIzaSyBvT_vBIRFfQECcfh_jaf841j0vYkUFNl0" # Replace with your actual Google API key
 
-# --- Helper Functions (from previous steps, ensuring they are defined) ---
+LLAMA_API_KEY = "" # Replace with your actual LlamaParse API key
+GOOGLE_API_KEY = "" # Replace with your actual Google API key
+
+
 
 @st.cache_resource
 def load_llama_parser(api_key):
@@ -124,7 +122,6 @@ def process_document(file_path, _llama_parser):
         "content": text
     }
 
-# Initialize Gemini model for term extraction
 @st.cache_resource
 def load_gemini_model(api_key):
     """Loads and caches the Gemini model for term extraction."""
@@ -195,7 +192,6 @@ def extract_terms_llm(content, language, _model): # Added leading underscore to 
         st.error(f" Error during term extraction with LLM: {e}")
         return []
 
-# Initialize Sentence Transformer embedding model for RAG
 @st.cache_resource
 def load_embedding_model():
     """Loads and caches the Sentence Transformer embedding model."""
@@ -207,7 +203,7 @@ def load_embedding_model():
 
 embedding_model = load_embedding_model()
 
-# Simple wrapper for SentenceTransformer model for Langchain compatibility
+
 class SentenceTransformerEmbeddingWrapper:
      def __init__(self, model):
         self.model = model
@@ -248,7 +244,6 @@ sentence_transformer_embedding_function = None
 if embedding_model:
     sentence_transformer_embedding_function = SentenceTransformerEmbeddingWrapper(embedding_model)
 
-# Initialize LLM for RAG chat
 @st.cache_resource
 def load_chat_llm(api_key):
      """Loads and caches the Chat LLM."""
@@ -261,16 +256,16 @@ def load_chat_llm(api_key):
 chat_llm = load_chat_llm(GOOGLE_API_KEY)
 
 
-# --- Streamlit App Layout ---
 
-# File Upload Section
+
+
 uploaded_file = st.file_uploader("Choose a file", type=["pdf", "docx", "txt", "pptx"])
 
 temp_file_path = None
 document_data = None # Store processed document data
 collection_name = "raw_file_chunks" # Define collection name
 
-# Cache processed document data to avoid reprocessing on rerun
+
 @st.cache_data
 def process_and_store_document(uploaded_file, _llama_parser, _embedding_func, _llm_chat):
     """Processes uploaded file, extracts text, and stores chunks in vector db."""
@@ -314,12 +309,12 @@ def process_and_store_document(uploaded_file, _llama_parser, _embedding_func, _l
                                     metadatas=metas[i:i+batch_size],
                                     ids=ids[i:i+batch_size]
                                 )
-                                #st.write(f" Added batch {i // batch_size + 1}") # Optional: show batch progress
+                              
 
                         batch_add(collection, texts, embeddings, metadatas, ids)
                         st.success(f" Stored {len(texts)} chunks from {document_data['file_name']} in vector database collection: {file_collection_name}.")
 
-                        # Return the collection name for RAG
+                 
                         return document_data, file_collection_name
                     else:
                         st.error("Could not generate embeddings for document chunks.")
@@ -334,7 +329,7 @@ def process_and_store_document(uploaded_file, _llama_parser, _embedding_func, _l
         return document_data, None
 
 
-# Process the uploaded file and store in Vector DB
+
 if uploaded_file is not None:
     llama_parser = load_llama_parser(LLAMA_API_KEY)
     if llama_parser and embedding_model and chat_llm:
@@ -347,13 +342,13 @@ if uploaded_file is not None:
                  st.session_state['chat_history'] = []
 
 
-# --- Display Extracted Terms and Definitions ---
+
 st.header("Extracted Terms and Definitions")
 if 'document_data' in st.session_state and st.session_state['document_data'] and st.session_state['document_data'].get("content"):
     document_data_display = st.session_state['document_data']
     st.write(f"Processing terms and definitions for: {document_data_display['file_name']}")
 
-    # Use cached term extraction
+
     extracted_terms = extract_terms_llm(
         document_data_display["content"],
         document_data_display["language"],
@@ -362,7 +357,7 @@ if 'document_data' in st.session_state and st.session_state['document_data'] and
 
     if extracted_terms:
         st.subheader("Terms and Definitions:")
-        # Format output as a definition list or table for better readability
+    
         for item in extracted_terms:
             term = item.get("term", "N/A")
             definition = item.get("definition", "N/A")
@@ -373,7 +368,6 @@ if 'document_data' in st.session_state and st.session_state['document_data'] and
 else:
     st.write("Upload a document to see extracted terms and definitions here.")
 
-# --- Chat with the Document Section ---
 st.header("Chat with the Document")
 if 'document_data' in st.session_state and st.session_state['document_data'] and st.session_state['document_data'].get("content") and 'stored_collection_name' in st.session_state and st.session_state['stored_collection_name'] and chat_llm and embedding_model:
 
@@ -410,7 +404,7 @@ if 'document_data' in st.session_state and st.session_state['document_data'] and
              document_chain = create_stuff_documents_chain(llm=chat_llm, prompt=prompt_template)
              st.session_state['rag_chain'] = create_retrieval_chain(retriever=retriever, combine_docs_chain=document_chain)
              st.success("RAG chain initialized. You can now chat with the document.")
-             # Store the retriever in session state as well (optional, for debugging)
+          
              st.session_state['retriever'] = retriever
         except Exception as e:
             st.error(f"Error setting up RAG chain: {e}")
@@ -434,7 +428,7 @@ if 'document_data' in st.session_state and st.session_state['document_data'] and
                     try:
                         result = st.session_state['rag_chain'].invoke({"input": user_question})
 
-                        # Extract and display only the answer
+                    
                         answer = result.get("answer", "Could not retrieve an answer.")
 
                         # Append to chat history (restoring this)
@@ -443,7 +437,6 @@ if 'document_data' in st.session_state and st.session_state['document_data'] and
                         st.session_state['chat_history'].append({"question": user_question, "answer": answer})
 
 
-                        # Clear the input box after sending and trigger rerun
                         st.rerun() # Keep rerun to clear input and update page with chat history
 
                     except Exception as e:
@@ -459,4 +452,5 @@ else:
     elif 'stored_collection_name' not in st.session_state or not st.session_state['stored_collection_name']:
          st.warning("Document processed, but storage in vector database failed. Chat disabled.")
     elif not chat_llm or not embedding_model:
+
          st.warning("LLM or embedding model not initialized. Chat disabled.")
